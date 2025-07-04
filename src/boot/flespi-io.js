@@ -6,21 +6,21 @@ let rest = '',
   socket = ''
 
 console.log('[flespi-io] Environment check:', {
-  DEV,
-  PROD,
-  LOCAL,
+  DEV: typeof DEV !== 'undefined' ? DEV : false,
+  PROD: typeof PROD !== 'undefined' ? PROD : false,
+  LOCAL: typeof LOCAL !== 'undefined' ? LOCAL : false,
   hostname: window.location.hostname,
   host: window.location.host,
   pathname: window.location.pathname
 });
 
 /* if local dev build */
-if (DEV && LOCAL) {
+if (typeof DEV !== 'undefined' && DEV && typeof LOCAL !== 'undefined' && LOCAL) {
   if (window.location.host.indexOf('localhost') !== -1) {
     rest = 'https://localhost:9005'
     socket = 'wss://localhost:9017'
   }
-} else if (PROD) {
+} else if (typeof PROD !== 'undefined' && PROD) {
   // For production deployments (like Vercel), always use flespi.io servers
   // unless it's specifically hosted on flespi.io domain
   if (window.location.host.indexOf('flespi.io') !== -1) {
@@ -38,7 +38,7 @@ console.log('[flespi-io] Connection configuration:', {
   socket: socket || 'wss://mqtt.flespi.io'
 });
 
-const isDev = DEV || (PROD && window.location.host.indexOf('flespi.io') === -1)
+const isDev = (typeof DEV !== 'undefined' && DEV) || (typeof PROD !== 'undefined' && PROD && window.location.host.indexOf('flespi.io') === -1)
 const mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
 const clientId = `toolbox-${version}${isDev ? '-dev' : ''}-${Math.random().toString(16).substr(2, 8)}`
 
