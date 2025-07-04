@@ -89,20 +89,47 @@ export default {
       }
     },
     logIn(region) {
-      this.initConnection({ token: this.token, region }).then(() => {
-        this.$nextTick(() => {
-          if (this.$route.params && this.$route.params.goto) {
-            this.goto(this.$route.params.goto);
-          } else {
-            this.goto("/");
-          }
+      console.log("[Login] Starting logIn with region:", region);
+      this.initConnection({ token: this.token, region })
+        .then(() => {
+          console.log("[Login] initConnection successful");
+          this.$nextTick(() => {
+            if (this.$route.params && this.$route.params.goto) {
+              this.goto(this.$route.params.goto);
+            } else {
+              this.goto("/");
+            }
+          });
+        })
+        .catch((error) => {
+          console.error("[Login] initConnection failed:", error);
+          // Show error to user
+          this.$q.notify({
+            type: "negative",
+            message: "Authentication failed. Please check your token.",
+            timeout: 5000,
+          });
         });
-      });
     },
     autoLogin() {
-      this.initConnection({ token: this.$route.params.token }).then(() => {
-        this.goto("/");
-      });
+      console.log(
+        "[Login] Starting autoLogin with token:",
+        this.$route.params.token
+      );
+      this.initConnection({ token: this.$route.params.token })
+        .then(() => {
+          console.log("[Login] autoLogin successful");
+          this.goto("/");
+        })
+        .catch((error) => {
+          console.error("[Login] autoLogin failed:", error);
+          // Show error to user
+          this.$q.notify({
+            type: "negative",
+            message: "Authentication failed. Please check your token.",
+            timeout: 5000,
+          });
+        });
     },
     checkHasToken() {
       const sessionSettings = this.sessionSettings || {};

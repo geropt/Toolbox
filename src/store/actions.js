@@ -328,27 +328,49 @@ async function getRegions ({ state, commit }) {
 }
 
 async function initConnection ({ state, commit }, { region, token }) {
+  console.log('[Store] initConnection called with:', { region, token: token ? 'provided' : 'not provided' });
+  
   try {
     if (typeof state.isLoading !== 'undefined') {
       Vue.set(state, 'isLoading', true)
     }
+    
+    console.log('[Store] Checking regions...');
     if (!state.regions) {
+      console.log('[Store] Getting regions...');
       await getRegions({ state, commit })
     }
+    
     if (region) {
+      console.log('[Store] Setting region:', region);
       commit('setToolboxSessionSettings', { region })
     }
+    
     const currentRegion = state.sessionSettings.region
-    Vue.prototype.$flespiServer = currentRegion.rest
-    Vue.prototype.$flespiSocketServer = `wss://${currentRegion['mqtt-ws']}`
-    Vue.prototype.$flespiCDN = currentRegion.cdn
-    Vue.connector.setRegion(currentRegion)
+    console.log('[Store] Current region:', currentRegion);
+    
+    if (currentRegion) {
+      Vue.prototype.$flespiServer = currentRegion.rest
+      Vue.prototype.$flespiSocketServer = `wss://${currentRegion['mqtt-ws']}`
+      Vue.prototype.$flespiCDN = currentRegion.cdn
+      console.log('[Store] Setting region on connector:', {
+        rest: currentRegion.rest,
+        socket: `wss://${currentRegion['mqtt-ws']}`,
+        cdn: currentRegion.cdn
+      });
+      Vue.connector.setRegion(currentRegion)
+    }
+    
+    console.log('[Store] Setting token...');
     commit('setToken', token)
+    console.log('[Store] initConnection completed successfully');
   } catch (e) {
+    console.error('[Store] initConnection failed:', e);
     commit('reqFailed', e)
     if (typeof state.isLoading !== 'undefined') {
       Vue.set(state, 'isLoading', false)
     }
+    throw e; // Re-throw to allow proper error handling in components
   }
 }
 
