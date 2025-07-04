@@ -1,0 +1,13 @@
+node_modules
+.quasar
+dist
+src-cordova
+src-electron
+src-capacitor
+.git
+.DS_Store
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local 
